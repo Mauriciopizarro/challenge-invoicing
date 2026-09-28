@@ -1,0 +1,902 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Multi-Country Invoicing Service",
+    "description": "Routes invoices to per-country provider adapters, with retry, idempotency, and audit trail.",
+    "version": "1.0"
+  },
+  "paths": {
+    "/invoices": {
+      "post": {
+        "tags": [
+          "Invoices"
+        ],
+        "summary": "Create Invoice",
+        "operationId": "create_invoice_invoices_post",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceCreatedResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/invoices/{invoice_id}": {
+      "get": {
+        "tags": [
+          "Invoices"
+        ],
+        "summary": "Get Invoice",
+        "operationId": "get_invoice_invoices__invoice_id__get",
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchants": {
+      "post": {
+        "tags": [
+          "Merchants"
+        ],
+        "summary": "Register Merchant",
+        "operationId": "register_merchant_merchants_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MerchantCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchants/{merchant_id}": {
+      "get": {
+        "tags": [
+          "Merchants"
+        ],
+        "summary": "Get Merchant",
+        "operationId": "get_merchant_merchants__merchant_id__get",
+        "parameters": [
+          {
+            "name": "merchant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Merchant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Merchants"
+        ],
+        "summary": "Update Merchant",
+        "operationId": "update_merchant_merchants__merchant_id__put",
+        "parameters": [
+          {
+            "name": "merchant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Merchant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FiscalPartyDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recipients": {
+      "post": {
+        "tags": [
+          "Recipients"
+        ],
+        "summary": "Register Recipient",
+        "operationId": "register_recipient_recipients_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecipientCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipientResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recipients/{recipient_id}": {
+      "get": {
+        "tags": [
+          "Recipients"
+        ],
+        "summary": "Get Recipient",
+        "operationId": "get_recipient_recipients__recipient_id__get",
+        "parameters": [
+          {
+            "name": "recipient_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Recipient Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipientResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Recipients"
+        ],
+        "summary": "Update Recipient",
+        "operationId": "update_recipient_recipients__recipient_id__put",
+        "parameters": [
+          {
+            "name": "recipient_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Recipient Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FiscalPartyDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipientResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/providers": {
+      "get": {
+        "tags": [
+          "Providers"
+        ],
+        "summary": "List Supported Providers",
+        "operationId": "list_supported_providers_providers_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProviderInfoResponse"
+                  },
+                  "type": "array",
+                  "title": "Response List Supported Providers Providers Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "FiscalPartyDTO": {
+        "properties": {
+          "legal_name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Legal Name"
+          },
+          "tax_id": {
+            "$ref": "#/components/schemas/TaxIdDTO"
+          },
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Address"
+          },
+          "extra": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Extra",
+            "description": "Country-specific fiscal fields, e.g. condicion_iva (AR), regimen_fiscal/codigo_postal (MX), inscricao_estadual (BR)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "legal_name",
+          "tax_id",
+          "address"
+        ],
+        "title": "FiscalPartyDTO"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InvoiceAttemptResponse": {
+        "properties": {
+          "attempt_number": {
+            "type": "integer",
+            "title": "Attempt Number"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "request_payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Request Payload"
+          },
+          "response_payload": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Payload"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "title": "Duration Ms"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Finished At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "attempt_number",
+          "provider",
+          "request_payload",
+          "response_payload",
+          "error_message",
+          "status",
+          "duration_ms",
+          "started_at",
+          "finished_at"
+        ],
+        "title": "InvoiceAttemptResponse"
+      },
+      "InvoiceCreate": {
+        "properties": {
+          "entity_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Entity Id",
+            "description": "Opaque internal customer id in the merchant's own system (reconciliation key, not fiscal identity)"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Amount"
+          },
+          "issuer_merchant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Issuer Merchant Id",
+            "description": "Id of a Merchant registered via POST /merchants \u2014 country_code, issuer, and currency are all derived from it"
+          },
+          "recipient_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Recipient Id",
+            "description": "Id of a Recipient registered via POST /recipients (always required \u2014 this is a B2B platform, there is no anonymous 'consumidor final' case)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "entity_id",
+          "amount",
+          "issuer_merchant_id",
+          "recipient_id"
+        ],
+        "title": "InvoiceCreate"
+      },
+      "InvoiceCreatedResponse": {
+        "properties": {
+          "invoice_id": {
+            "type": "string",
+            "title": "Invoice Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "provider_used": {
+            "type": "string",
+            "title": "Provider Used"
+          },
+          "external_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Reference"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice_id",
+          "status",
+          "provider_used",
+          "external_reference"
+        ],
+        "title": "InvoiceCreatedResponse"
+      },
+      "InvoiceDetailResponse": {
+        "properties": {
+          "invoice_id": {
+            "type": "string",
+            "title": "Invoice Id"
+          },
+          "entity_id": {
+            "type": "string",
+            "title": "Entity Id"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Amount"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "country_code": {
+            "type": "string",
+            "title": "Country Code"
+          },
+          "provider_used": {
+            "type": "string",
+            "title": "Provider Used"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "external_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Reference"
+          },
+          "failure_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Reason"
+          },
+          "issuer_merchant_id": {
+            "type": "string",
+            "title": "Issuer Merchant Id"
+          },
+          "issuer": {
+            "$ref": "#/components/schemas/FiscalPartyDTO"
+          },
+          "recipient_id": {
+            "type": "string",
+            "title": "Recipient Id"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/FiscalPartyDTO"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceAttemptResponse"
+            },
+            "type": "array",
+            "title": "Attempts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice_id",
+          "entity_id",
+          "amount",
+          "currency",
+          "country_code",
+          "provider_used",
+          "status",
+          "external_reference",
+          "failure_reason",
+          "issuer_merchant_id",
+          "issuer",
+          "recipient_id",
+          "recipient",
+          "created_at",
+          "updated_at",
+          "attempts"
+        ],
+        "title": "InvoiceDetailResponse"
+      },
+      "MerchantCreate": {
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$",
+            "title": "Country Code",
+            "description": "ISO-3166 alpha-2 country code, e.g. AR, BR, MX"
+          },
+          "fiscal_party": {
+            "$ref": "#/components/schemas/FiscalPartyDTO"
+          }
+        },
+        "type": "object",
+        "required": [
+          "country_code",
+          "fiscal_party"
+        ],
+        "title": "MerchantCreate"
+      },
+      "MerchantResponse": {
+        "properties": {
+          "merchant_id": {
+            "type": "string",
+            "title": "Merchant Id"
+          },
+          "country_code": {
+            "type": "string",
+            "title": "Country Code"
+          },
+          "fiscal_party": {
+            "$ref": "#/components/schemas/FiscalPartyDTO"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "merchant_id",
+          "country_code",
+          "fiscal_party",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "MerchantResponse"
+      },
+      "ProviderInfoResponse": {
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "title": "Country Code"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          }
+        },
+        "type": "object",
+        "required": [
+          "country_code",
+          "provider"
+        ],
+        "title": "ProviderInfoResponse"
+      },
+      "RecipientCreate": {
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$",
+            "title": "Country Code",
+            "description": "ISO-3166 alpha-2 country code, e.g. AR, BR, MX"
+          },
+          "fiscal_party": {
+            "$ref": "#/components/schemas/FiscalPartyDTO"
+          }
+        },
+        "type": "object",
+        "required": [
+          "country_code",
+          "fiscal_party"
+        ],
+        "title": "RecipientCreate"
+      },
+      "RecipientResponse": {
+        "properties": {
+          "recipient_id": {
+            "type": "string",
+            "title": "Recipient Id"
+          },
+          "country_code": {
+            "type": "string",
+            "title": "Country Code"
+          },
+          "fiscal_party": {
+            "$ref": "#/components/schemas/FiscalPartyDTO"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "recipient_id",
+          "country_code",
+          "fiscal_party",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "RecipientResponse"
+      },
+      "TaxIdDTO": {
+        "properties": {
+          "id_type": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Id Type",
+            "description": "e.g. CUIT, RFC, CNPJ, CPF"
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id_type",
+          "value"
+        ],
+        "title": "TaxIdDTO"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
